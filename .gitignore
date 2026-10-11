@@ -1,0 +1,29 @@
+# Virtual environment
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment files
+.env
+
+# Uploads / user media
+uploads/
+app/static/uploads/
+*.jpg
+*.jpeg
+*.png
+*.webp
+!app/static/img/*
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Database dump / local sqlite / logs
+*.log
+*.sqlite3

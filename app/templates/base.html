@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CampusFind — Campus Lost & Found Portal{% endblock %}</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('dashboard.home') }}">
+                <span class="badge bg-primary fs-5 p-2 rounded-3"><i class="bi bi-compass"></i></span>
+                <span class="fs-4 fw-bold">Campus<span class="text-primary">Find</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('items.list_items') }}"><i class="bi bi-grid me-1"></i> Browse Items</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-semibold" href="{{ url_for('items.report_lost') }}"><i class="bi bi-question-circle me-1"></i> Report Lost</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-success fw-semibold" href="{{ url_for('items.report_found') }}"><i class="bi bi-check-circle me-1"></i> Report Found</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+                    {% if session.get('user_id') %}
+                        <!-- Notifications Pill -->
+                        <li class="nav-item">
+                            <a class="nav-link position-relative px-2" href="{{ url_for('dashboard.notifications_view') }}" title="Notifications">
+                                <i class="bi bi-bell fs-5"></i>
+                                {% if unread_notifications_count and unread_notifications_count > 0 %}
+                                    <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ unread_notifications_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        </li>
+
+                        <!-- Claims Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('claims.my_claims') }}"><i class="bi bi-file-earmark-check me-1"></i> Claims</a>
+                        </li>
+
+                        <!-- User Menu Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px;">
+                                    {{ session.get('user_name', 'U')[0]|upper }}
+                                </div>
+                                <span>{{ session.get('user_name') }}</span>
+                                {% if session.get('user_role') == 'admin' %}
+                                    <span class="badge bg-danger ms-1">Admin</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                                <li>
+                                    <div class="dropdown-header">
+                                        <strong>{{ session.get('user_name') }}</strong><br>
+                                        <small class="text-muted">{{ session.get('user_email') }}</small>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard.student_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i> Student Dashboard</a></li>
+                                {% if session.get('user_role') == 'admin' %}
+                                    <li><a class="dropdown-item text-danger fw-semibold" href="{{ url_for('admin.admin_dashboard') }}"><i class="bi bi-shield-lock me-2"></i> Admin Panel</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">Log In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary px-3 rounded-pill" href="{{ url_for('auth.register') }}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages Container -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="bi {% if category == 'success' %}bi-check-circle-fill{% elif category == 'danger' %}bi-exclamation-triangle-fill{% elif category == 'warning' %}bi-exclamation-circle-fill{% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Body -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <span class="fw-bold text-white"><i class="bi bi-compass text-primary me-1"></i> CampusFind</span>
+                    — Cloud-Based Campus Lost-and-Found Portal
+                    <p class="small text-muted mb-0 mt-1">Built with Python Flask, MySQL, and AWS RDS/S3 Readiness.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end small">
+                    <a href="{{ url_for('items.list_items') }}" class="me-3">Browse</a>
+                    <a href="{{ url_for('items.report_lost') }}" class="me-3">Lost</a>
+                    <a href="{{ url_for('items.report_found') }}" class="me-3">Found</a>
+                    <span class="text-muted">| &copy; 2026 CampusFinds</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

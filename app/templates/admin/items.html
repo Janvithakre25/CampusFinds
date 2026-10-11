@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Manage Items — Admin — CampusFind{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Manage All Listings</h1>
+            <p class="text-muted small mb-0">Moderate, update statuses, or delete inappropriate items.</p>
+        </div>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Listings Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>ID</th>
+                            <th>Title & Category</th>
+                            <th>Type</th>
+                            <th>Reporter</th>
+                            <th>Date / Location</th>
+                            <th>Status Control</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            <tr>
+                                <td class="text-muted small">#{{ item.id }}</td>
+                                <td>
+                                    <a href="{{ url_for('items.item_detail', item_id=item.id) }}" class="fw-bold text-decoration-none text-dark">
+                                        {{ item.title }}
+                                    </a><br>
+                                    <span class="badge bg-secondary-subtle text-secondary small">{{ item.category }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if item.item_type == 'lost' %}badge-lost{% else %}badge-found{% endif %} text-uppercase">
+                                        {{ item.item_type }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>{{ item.reporter_name }}</strong><br>
+                                    <small class="text-muted">{{ item.reporter_email }}</small>
+                                </td>
+                                <td class="small">
+                                    <div><i class="bi bi-calendar3 me-1 text-primary"></i> {{ item.item_date }}</div>
+                                    <div class="text-muted text-truncate" style="max-width: 160px;"><i class="bi bi-geo-alt me-1 text-danger"></i> {{ item.location }}</div>
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin.update_item_status', item_id=item.id) }}" class="d-inline-flex align-items-center gap-1">
+                                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            <option value="open" {% if item.status == 'open' %}selected{% endif %}>Open</option>
+                                            <option value="claimed" {% if item.status == 'claimed' %}selected{% endif %}>Claimed</option>
+                                            <option value="returned" {% if item.status == 'returned' %}selected{% endif %}>Returned</option>
+                                            <option value="closed" {% if item.status == 'closed' %}selected{% endif %}>Closed</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('items.item_detail', item_id=item.id) }}" class="btn btn-outline-primary" title="View details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <form method="POST" action="{{ url_for('admin.delete_item', item_id=item.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete this listing?');">
+                                            <button type="submit" class="btn btn-outline-danger" title="Delete listing">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Browse Lost & Found Items — CampusFind{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Browse Campus Items</h1>
+            <p class="text-muted small mb-0">Search and filter reported lost and found belongings across the university.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('items.report_lost') }}" class="btn btn-warning fw-semibold btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> Report Lost
+            </a>
+            <a href="{{ url_for('items.report_found') }}" class="btn btn-success fw-semibold btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> Report Found
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card p-3 mb-4 shadow-sm border-0">
+        <form method="GET" action="{{ url_for('items.list_items') }}" class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Keywords</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Wallet, keys, laptop..." value="{{ current_keyword }}">
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Item Type</label>
+                <select name="type" class="form-select form-select-sm">
+                    <option value="" {% if not current_type %}selected{% endif %}>All Types</option>
+                    <option value="lost" {% if current_type == 'lost' %}selected{% endif %}>Lost Items</option>
+                    <option value="found" {% if current_type == 'found' %}selected{% endif %}>Found Items</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Category</label>
+                <select name="category" class="form-select form-select-sm">
+                    <option value="" {% if not current_category %}selected{% endif %}>All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Location</label>
+                <input type="text" name="location" class="form-control form-select-sm" placeholder="e.g. Library, Lab" value="{{ current_location }}">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="open" {% if current_status == 'open' %}selected{% endif %}>Open Only</option>
+                    <option value="claimed" {% if current_status == 'claimed' %}selected{% endif %}>Claimed</option>
+                    <option value="returned" {% if current_status == 'returned' %}selected{% endif %}>Returned</option>
+                    <option value="all" {% if current_status == 'all' %}selected{% endif %}>All Statuses</option>
+                </select>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                <a href="{{ url_for('items.list_items') }}" class="btn btn-outline-secondary btn-sm">Clear Filters</a>
+                <button type="submit" class="btn btn-primary btn-sm px-4 fw-semibold">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Items Grid -->
+    <div class="row g-4">
+        {% for item in items %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 card-hover">
+                    {% if item.display_image_url %}
+                        <img src="{{ item.display_image_url }}" alt="{{ item.title }}" class="item-img-preview">
+                    {% else %}
+                        <div class="item-img-placeholder">
+                            <i class="bi {% if item.item_type == 'lost' %}bi-question-circle{% else %}bi-box-seam{% endif %}"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge {% if item.item_type == 'lost' %}badge-lost{% else %}badge-found{% endif %} text-uppercase">
+                                {{ item.item_type }}
+                            </span>
+                            <span class="badge {% if item.status == 'open' %}bg-success-subtle text-success{% elif item.status == 'claimed' %}badge-claimed{% elif item.status == 'returned' %}badge-returned{% else %}bg-secondary{% endif %}">
+                                {{ item.status|capitalize }}
+                            </span>
+                        </div>
+                        <h5 class="card-title fw-bold text-truncate" title="{{ item.title }}">{{ item.title }}</h5>
+                        <div class="badge bg-secondary-subtle text-secondary w-auto align-self-start mb-2">{{ item.category }}</div>
+                        <p class="card-text text-muted small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ item.description }}
+                        </p>
+                        <div class="text-muted small mb-3">
+                            <div><i class="bi bi-geo-alt me-1 text-danger"></i> {{ item.location }}</div>
+                            <div><i class="bi bi-calendar3 me-1 text-primary"></i> {{ item.item_date }}</div>
+                            <div><i class="bi bi-person me-1"></i> Reported by {{ item.reporter_name }}</div>
+                        </div>
+                        <a href="{{ url_for('items.item_detail', item_id=item.id) }}" class="btn btn-outline-primary w-100 fw-semibold">
+                            View Details {% if item.item_type == 'found' and item.status == 'open' %}& Claim{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 py-5 text-center">
+                <div class="display-6 text-muted mb-3"><i class="bi bi-search"></i></div>
+                <h4 class="fw-bold">No items found matching your criteria</h4>
+                <p class="text-muted">Try adjusting your keyword, category, or status filters.</p>
+                <a href="{{ url_for('items.list_items') }}" class="btn btn-outline-primary btn-sm">Reset All Filters</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

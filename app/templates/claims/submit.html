@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Submit Ownership Claim — CampusFind{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 p-4">
+                <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+                    <span class="badge bg-primary-subtle text-primary p-3 rounded-circle fs-3">
+                        <i class="bi bi-shield-check"></i>
+                    </span>
+                    <div>
+                        <h2 class="h3 fw-bold mb-0">Claim Ownership</h2>
+                        <p class="text-muted small mb-0">Prove that this found item belongs to you.</p>
+                    </div>
+                </div>
+
+                <!-- Found Item Snapshot -->
+                <div class="alert alert-light border d-flex gap-3 align-items-center mb-4">
+                    <div class="badge bg-success text-uppercase p-2">Found</div>
+                    <div>
+                        <h6 class="fw-bold mb-0">{{ item.title }}</h6>
+                        <small class="text-muted">Category: {{ item.category }} | Found at: {{ item.location }} on {{ item.item_date }}</small>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('claims.submit_claim', item_id=item.id) }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Why is this item yours? *</label>
+                        <textarea name="claim_description" rows="3" class="form-control" placeholder="Explain when and where you lost it, brand, and appearance details..." required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-danger">
+                            <i class="bi bi-key-fill me-1"></i> Proof of Ownership / Secret Details *
+                        </label>
+                        <textarea name="proof_details" rows="3" class="form-control" placeholder="Provide identifying marks that only the true owner would know: e.g. serial number, specific stickers, hidden scratch, wallpaper, name written inside, contents of pocket..." required></textarea>
+                        <div class="form-text">
+                            This will be verified against the confidential notes submitted by the finder or inspected by the campus administrator.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Photo Proof (Optional)</label>
+                        <input type="file" name="proof_image" class="form-control" accept="image/png, image/jpeg, image/webp">
+                        <div class="form-text">e.g. A photo of your purchase receipt, photo of you with the item, or warranty card.</div>
+                        <div id="image-preview-container" class="mt-2 d-none">
+                            <img id="image-preview" src="#" alt="Preview" class="rounded border" style="max-height: 180px;">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="{{ url_for('items.item_detail', item_id=item.id) }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            <i class="bi bi-send-check me-1"></i> Submit Ownership Claim
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

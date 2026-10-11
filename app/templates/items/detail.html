@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block title %}{{ item.title }} — CampusFind{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb & Back Link -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{{ url_for('items.list_items') }}" class="text-decoration-none text-muted small">
+            <i class="bi bi-arrow-left me-1"></i> Back to all listings
+        </a>
+        <div class="d-flex gap-2">
+            <span class="badge {% if item.item_type == 'lost' %}badge-lost{% else %}badge-found{% endif %} fs-6 text-uppercase px-3 py-2">
+                {{ item.item_type }}
+            </span>
+            <span class="badge {% if item.status == 'open' %}bg-success-subtle text-success{% elif item.status == 'claimed' %}badge-claimed{% elif item.status == 'returned' %}badge-returned{% else %}bg-secondary{% endif %} fs-6 px-3 py-2">
+                {{ item.status|capitalize }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Item Details -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 p-4 mb-4">
+                <h1 class="h2 fw-bold mb-2">{{ item.title }}</h1>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <span class="badge bg-secondary-subtle text-secondary px-3 py-2">{{ item.category }}</span>
+                    <span class="badge bg-light text-muted border px-3 py-2"><i class="bi bi-clock me-1"></i> Listed {{ item.created_at.strftime('%b %d, %Y') }}</span>
+                </div>
+
+                {% if item.display_image_url %}
+                    <div class="text-center mb-4 bg-light rounded p-2">
+                        <img src="{{ item.display_image_url }}" alt="{{ item.title }}" class="img-fluid rounded shadow-sm" style="max-height: 400px; object-fit: contain;">
+                    </div>
+                {% endif %}
+
+                <h5 class="fw-bold text-dark mb-2">Description</h5>
+                <p class="text-secondary leading-relaxed mb-4" style="white-space: pre-line;">{{ item.description }}</p>
+
+                <div class="row g-3 bg-light rounded p-3 mb-4">
+                    <div class="col-sm-6">
+                        <span class="text-muted small d-block">Location</span>
+                        <strong class="text-dark"><i class="bi bi-geo-alt text-danger me-1"></i> {{ item.location }}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted small d-block">Date of Occurrence</span>
+                        <strong class="text-dark"><i class="bi bi-calendar-event text-primary me-1"></i> {{ item.item_date }}</strong>
+                    </div>
+                </div>
+
+                <!-- Private Verification Details Box (RESTRICTED TO OWNER & ADMIN ONLY) -->
+                {% if can_see_private %}
+                    <div class="card border-warning bg-warning-subtle mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-shield-lock-fill text-warning fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Confidential Verification Details (Authorized View Only)</h6>
+                            </div>
+                            <p class="mb-0 text-dark small" style="white-space: pre-line;">
+                                {{ item.private_verification_details or 'No secret verification marks were provided by the reporter.' }}
+                            </p>
+                            <small class="text-muted d-block mt-2">
+                                * Visible exclusively to you (the reporter) and campus administrators. Kept hidden from general campus users.
+                            </small>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Handover Return Information (Shown if item status is returned) -->
+                {% if handover %}
+                    <div class="alert alert-success border-success-subtle mb-4 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-patch-check-fill fs-4 text-success"></i>
+                            <h5 class="fw-bold mb-0">Official Handover Completed</h5>
+                        </div>
+                        <p class="small mb-1">
+                            This item was safely returned by <strong>{{ handover.handed_name }}</strong> to <strong>{{ handover.received_name }}</strong> on {{ handover.handover_date }}.
+                        </p>
+                        <p class="small mb-0 text-muted">
+                            Meeting Spot: <strong>{{ handover.location }}</strong> {% if handover.notes %} | Notes: {{ handover.notes }}{% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+
+                <!-- Claiming Action for Students on Found Items -->
+                {% if item.item_type == 'found' and item.status == 'open' and not is_owner %}
+                    <div class="card border-primary p-3 bg-primary-subtle text-center">
+                        <h5 class="fw-bold text-primary mb-1">Is this your item?</h5>
+                        <p class="text-muted small mb-3">Submit an ownership claim providing identifying proof that only the real owner knows.</p>
+                        {% if user_claim %}
+                            <div class="badge bg-info text-dark p-2 fs-6">
+                                <i class="bi bi-hourglass-split me-1"></i> You have already submitted a claim (Status: {{ user_claim.status|capitalize }})
+                            </div>
+                        {% else %}
+                            <a href="{{ url_for('claims.submit_claim', item_id=item.id) }}" class="btn btn-primary fw-bold px-4 py-2 mx-auto">
+                                <i class="bi bi-shield-check me-1"></i> Claim This Item Now
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Ownership Claims Management (Visible to Item Reporter or Admin) -->
+            {% if can_see_private and item.item_type == 'found' %}
+                <div class="card shadow-sm border-0 p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="h5 fw-bold mb-0"><i class="bi bi-file-earmark-person me-2 text-primary"></i>Ownership Claims Received ({{ claims|length }})</h4>
+                    </div>
+
+                    {% if claims %}
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light small">
+                                    <tr>
+                                        <th>Claimant</th>
+                                        <th>Submitted Proof</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in claims %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ c.claimant_name }}</strong><br>
+                                                <small class="text-muted">{{ c.claimant_email }}</small><br>
+                                                <small class="text-muted">ID: {{ c.claimant_student_id or 'N/A' }}</small>
+                                            </td>
+                                            <td>
+                                                <p class="small mb-1" style="max-width: 300px;">{{ c.claim_description }}</p>
+                                                <div class="text-muted small"><strong>Proof:</strong> {{ c.proof_details }}</div>
+                                                {% if c.display_proof_image %}
+                                                    <a href="{{ c.display_proof_image }}" target="_blank" class="small text-primary d-block mt-1">
+                                                        <i class="bi bi-image me-1"></i> View Proof Photo
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if c.status == 'approved' %}bg-success{% elif c.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                                    {{ c.status|capitalize }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                {% if c.status == 'pending' %}
+                                                    <!-- Review Form -->
+                                                    <form method="POST" action="{{ url_for('claims.review_claim', claim_id=c.id) }}" class="d-inline-flex flex-column gap-1">
+                                                        <input type="text" name="remarks" class="form-control form-control-sm" placeholder="Review remarks / notes..." style="min-width: 150px;">
+                                                        <div class="btn-group btn-group-sm">
+                                                            <button type="submit" name="decision" value="approved" class="btn btn-success btn-sm">Approve</button>
+                                                            <button type="submit" name="decision" value="rejected" class="btn btn-outline-danger btn-sm">Reject</button>
+                                                        </div>
+                                                    </form>
+                                                {% elif c.status == 'approved' and item.status != 'returned' %}
+                                                    <a href="{{ url_for('claims.record_handover', claim_id=c.id) }}" class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-box-arrow-right me-1"></i> Record Handover
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-muted small">Reviewed</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">No claims have been submitted for this item yet.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Details & Similar Items -->
+        <div class="col-lg-4">
+            <!-- Reporter Info Card -->
+            <div class="card shadow-sm border-0 p-3 mb-4">
+                <h6 class="fw-bold text-muted text-uppercase small mb-3">Reported By</h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 48px; height: 48px;">
+                        {{ item.reporter_name[0]|upper }}
+                    </div>
+                    <div>
+                        <div class="fw-bold">{{ item.reporter_name }}</div>
+                        <div class="text-muted small">{{ item.reporter_email }}</div>
+                        {% if item.reporter_phone %}
+                            <div class="text-muted small"><i class="bi bi-telephone me-1"></i> {{ item.reporter_phone }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI / Rule-Based Matching Similar Items -->
+            <div class="card shadow-sm border-0 p-3 mb-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-magic text-primary fs-5"></i>
+                    <h6 class="fw-bold mb-0">
+                        Potentially Matching {% if item.item_type == 'lost' %}Found{% else %}Lost{% endif %} Items
+                    </h6>
+                </div>
+                {% if similar_items %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for sim in similar_items %}
+                            <div class="border rounded p-2 bg-light">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="badge {% if sim.item_type == 'lost' %}badge-lost{% else %}badge-found{% endif %} small text-uppercase">
+                                        {{ sim.item_type }}
+                                    </span>
+                                    <span class="small text-muted">{{ sim.item_date }}</span>
+                                </div>
+                                <div class="fw-bold text-truncate">{{ sim.title }}</div>
+                                <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i> {{ sim.location }}</div>
+                                <a href="{{ url_for('items.item_detail', item_id=sim.id) }}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                                    Compare Details
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">No matching counterpart items detected yet. Check back soon!</p>
+                {% endif %}
+            </div>
+
+            <!-- Campus Security Help Card -->
+            <div class="card shadow-sm border-0 p-3 bg-light">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle text-primary me-1"></i> Campus Security Help</h6>
+                <p class="small text-muted mb-2">
+                    For high-value items (laptops, jewelry, official IDs), handovers can be completed safely in person at the Campus Security Control Office.
+                </p>
+                <div class="small text-secondary">
+                    <strong>Office Location:</strong> Central Administration Building, Ground Floor Room 102<br>
+                    <strong>Hours:</strong> Mon - Sat: 8:00 AM - 8:00 PM
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

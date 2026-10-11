@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Record Item Handover — CampusFind{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 p-4">
+                <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+                    <span class="badge bg-success-subtle text-success p-3 rounded-circle fs-3">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </span>
+                    <div>
+                        <h2 class="h3 fw-bold mb-0">Record Physical Handover</h2>
+                        <p class="text-muted small mb-0">Confirm the physical return of the item to officially complete the case.</p>
+                    </div>
+                </div>
+
+                <!-- Claim Summary -->
+                <div class="card bg-light border-0 p-3 mb-4">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <span class="text-muted small d-block">Item</span>
+                            <strong>{{ claim.item_title }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted small d-block">Claim Status</span>
+                            <span class="badge bg-success text-uppercase">{{ claim.status }}</span>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted small d-block">Finder / Current Possessor</span>
+                            <span>{{ claim.finder_name }}</span>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted small d-block">Receiving Student</span>
+                            <span>{{ claim.claimant_name }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('claims.record_handover', claim_id=claim.id) }}">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Handover Location *</label>
+                        <input type="text" name="location" class="form-control" placeholder="e.g. Central Library Security Desk, Student Union Lobby" required>
+                        <div class="form-text">Where did the physical meeting and exchange occur?</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Handover Notes / Verification Remarks</label>
+                        <textarea name="notes" rows="3" class="form-control" placeholder="e.g. Verified claimant student ID cardSTU-1029. Both parties signed acknowledgment form."></textarea>
+                    </div>
+
+                    <div class="alert alert-warning small d-flex gap-2">
+                        <i class="bi bi-exclamation-triangle-fill fs-5 flex-shrink-0"></i>
+                        <div>
+                            <strong>Important:</strong> Submitting this form will mark the item status as <strong>"Returned"</strong> in the campus database and lock duplicate returns.
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="{{ url_for('items.item_detail', item_id=claim.item_id) }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success px-4 fw-bold">
+                            <i class="bi bi-check2-circle me-1"></i> Confirm & Complete Return
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

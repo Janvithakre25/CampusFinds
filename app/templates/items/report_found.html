@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Report Found Item — CampusFind{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 p-4">
+                <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+                    <span class="badge bg-success-subtle text-success p-3 rounded-circle fs-3">
+                        <i class="bi bi-box2-heart"></i>
+                    </span>
+                    <div>
+                        <h2 class="h3 fw-bold mb-0">Report a Found Item</h2>
+                        <p class="text-muted small mb-0">Help a classmate retrieve their belonging by posting clear details.</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('items.report_found') }}" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Item Name / Title *</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Set of Dorm Keys with metal keychain" value="{{ form.title if form else '' }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Category *</label>
+                            <select name="category" class="form-select" required>
+                                <option value="" disabled {% if not form or not form.category %}selected{% endif %}>Select Category</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat }}" {% if form and form.category == cat %}selected{% endif %}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Date Found *</label>
+                            <input type="date" name="item_date" class="form-control" value="{{ form.item_date if form else '' }}" required>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Campus Location Found *</label>
+                            <input type="text" name="location" class="form-control" placeholder="e.g. Dining Hall table near entrance, Central Library ground floor" value="{{ form.location if form else '' }}" required>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Public Description *</label>
+                            <textarea name="description" rows="3" class="form-control" placeholder="Describe general appearance, color, type of object..." required>{{ form.description if form else '' }}</textarea>
+                            <div class="form-text">Visible publicly. Do not mention secret marks that only the true owner would know!</div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold text-danger">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Private Ownership Verification Details (Hidden from Public)
+                            </label>
+                            <textarea name="private_verification_details" rows="2" class="form-control" placeholder="e.g. Serial number, secret sticker, student ID name, exact coins/cards inside, or wallpaper description">{{ form.private_verification_details if form else '' }}</textarea>
+                            <div class="form-text text-muted">
+                                <strong>Safety Rule:</strong> Keep this private so anyone attempting to claim the item must prove they know these exact details before handover.
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Item Photo (Recommended)</label>
+                            <input type="file" name="image" class="form-control" accept="image/png, image/jpeg, image/webp">
+                            <div class="form-text">Max 16MB. High-quality photo helps quick identification.</div>
+                            <div id="image-preview-container" class="mt-2 d-none">
+                                <img id="image-preview" src="#" alt="Preview" class="rounded border" style="max-height: 180px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <a href="{{ url_for('items.list_items') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success px-4 fw-bold">
+                            <i class="bi bi-check2-circle me-1"></i> Post Found Item Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

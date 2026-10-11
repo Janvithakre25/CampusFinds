@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users — Admin — CampusFind{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Campus User Directory</h1>
+            <p class="text-muted small mb-0">View registered students and manage administrator permissions.</p>
+        </div>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name & Student ID</th>
+                            <th>Contact Email / Phone</th>
+                            <th>Department</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th class="text-end">Role Management</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                            <tr>
+                                <td class="text-muted small">#{{ u.id }}</td>
+                                <td>
+                                    <strong>{{ u.full_name }}</strong><br>
+                                    <small class="text-muted">ID: {{ u.student_id or 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    {{ u.email }}<br>
+                                    <small class="text-muted">{{ u.phone or 'No phone recorded' }}</small>
+                                </td>
+                                <td>{{ u.department or 'General' }}</td>
+                                <td>
+                                    <span class="badge {% if u.role == 'admin' %}bg-danger{% else %}bg-primary{% endif %} text-uppercase">
+                                        {{ u.role }}
+                                    </span>
+                                </td>
+                                <td class="small text-muted">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+                                <td class="text-end">
+                                    {% if u.id != session.get('user_id') %}
+                                        <form method="POST" action="{{ url_for('admin.toggle_user_role', user_id=u.id) }}" class="d-inline" onsubmit="return confirm('Toggle this user role?');">
+                                            <button type="submit" class="btn btn-sm {% if u.role == 'admin' %}btn-outline-warning{% else %}btn-outline-danger{% endif %}">
+                                                {% if u.role == 'admin' %}Demote to Student{% else %}Promote to Admin{% endif %}
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="badge bg-light text-muted border">Current User</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

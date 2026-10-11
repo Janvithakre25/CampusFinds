@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Manage Claims — Admin — CampusFind{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Ownership Claims Moderation</h1>
+            <p class="text-muted small mb-0">Review all claims, resolve disputes, and ensure fair ownership verification.</p>
+        </div>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Item Title</th>
+                            <th>Claimant</th>
+                            <th>Submitted Proof</th>
+                            <th>Status</th>
+                            <th>Finder Remarks</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in claims %}
+                            <tr>
+                                <td class="text-muted small">#{{ c.id }}</td>
+                                <td>
+                                    <a href="{{ url_for('items.item_detail', item_id=c.item_id) }}" class="fw-bold text-decoration-none text-dark">
+                                        {{ c.item_title }}
+                                    </a><br>
+                                    <span class="small text-muted">Finder: {{ c.reporter_name }}</span>
+                                </td>
+                                <td>
+                                    <strong>{{ c.claimant_name }}</strong><br>
+                                    <small class="text-muted">{{ c.claimant_email }}</small>
+                                </td>
+                                <td>
+                                    <p class="small mb-1" style="max-width: 280px;">{{ c.claim_description }}</p>
+                                    <small class="text-muted"><strong>Proof:</strong> {{ c.proof_details }}</small>
+                                    {% if c.display_proof_image %}
+                                        <a href="{{ c.display_proof_image }}" target="_blank" class="small text-primary d-block mt-1">
+                                            <i class="bi bi-image me-1"></i> View Attached Photo
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {% if c.status == 'approved' %}bg-success{% elif c.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                        {{ c.status|capitalize }}
+                                    </span>
+                                </td>
+                                <td class="small">{{ c.admin_or_finder_remarks or '-' }}</td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('items.item_detail', item_id=c.item_id) }}" class="btn btn-sm btn-outline-primary">
+                                        Review On Listing
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
