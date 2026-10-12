@@ -60,15 +60,28 @@ def submit_claim(item_id):
         flash("You cannot claim an item that you reported finding.", "warning")
         return redirect(url_for('items.item_detail', item_id=item_id))
 
-    # Check for existing claim
+    # Check for existing claim by this user on this item
     existing = query_db(
-        "SELECT id FROM claims WHERE item_id = %s AND claimant_id = %s",
+        "SELECT id, status FROM claims WHERE item_id = %s AND claimant_id = %s",
         (item_id, session['user_id']),
         one=True
     )
     if existing:
-        flash("You have already submitted a claim for this item.", "info")
+        if existing['status'] == 'rejected':
+            flash("Fraud Protection Lock: Your previous claim for this item was reviewed and rejected. You cannot submit further claims for this item.", "danger")
+        else:
+            flash(f"You have already submitted a claim for this item (Current Status: {existing['status'].capitalize()}).", "info")
         return redirect(url_for('items.item_detail', item_id=item_id))
+
+    # Anti-Spam Check: Prevent a user from having more than 5 unresolved pending claims across campus
+    pending_count = query_db(
+        "SELECT COUNT(*) as c FROM claims WHERE claimant_id = %s AND status = 'pending'",
+        (session['user_id'],),
+        one=True
+    )['c']
+    if pending_count >= 5:
+        flash("Claim Limit Reached: You have 5 pending claims awaiting review. Please wait for them to be resolved before submitting new claims.", "warning")
+        return redirect(url_for('claims.my_claims'))
 
     if request.method == 'POST':
         claim_description = request.form.get('claim_description', '').strip()

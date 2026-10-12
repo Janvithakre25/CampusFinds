@@ -50,12 +50,22 @@
                         </div>
 
                         <div class="col-md-12">
-                            <label class="form-label fw-semibold text-danger">
-                                <i class="bi bi-shield-lock-fill me-1"></i> Private Ownership Verification Details (Hidden from Public)
+                            <label class="form-label fw-semibold text-primary">
+                                <i class="bi bi-question-circle-fill me-1"></i> Ownership Verification Challenge Question (Asked to anyone who claims)
                             </label>
-                            <textarea name="private_verification_details" rows="2" class="form-control" placeholder="e.g. Serial number, secret sticker, student ID name, exact coins/cards inside, or wallpaper description">{{ form.private_verification_details if form else '' }}</textarea>
+                            <input type="text" name="verification_question" class="form-control" placeholder="e.g. What specific sticker is on the back? / What is the name on the ID card? / What color is the zipper tag?" value="{{ form.verification_question if form else '' }}">
                             <div class="form-text text-muted">
-                                <strong>Safety Rule:</strong> Keep this private so anyone attempting to claim the item must prove they know these exact details before handover.
+                                The claimant must answer this challenge question correctly when submitting their claim.
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold text-danger">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Correct Answer / Private Verification Details (Confidential)
+                            </label>
+                            <textarea name="private_verification_details" rows="2" class="form-control" placeholder="The actual answer/details (e.g. Pikachu sticker on bottom, Serial #4921, Student name Alex Rivera). This is completely hidden from the public.">{{ form.private_verification_details if form else '' }}</textarea>
+                            <div class="form-text text-muted">
+                                <strong>Safety Rule:</strong> Kept strictly confidential so only you (the finder) and campus administrators can verify incoming claim answers before handover.
                             </div>
                         </div>
 

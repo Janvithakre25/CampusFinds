@@ -127,14 +127,28 @@ Open your web browser and navigate to:
 
 ---
 
-## 🔑 Demo Login Accounts
+## 🔑 Demo Login Accounts (RBU Nagpur)
+
+All accounts end with the official university domain **`@rbunagpur.in`**:
 
 | Role | Email | Password | Access Capabilities |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@campusfinds.edu` | `Password123!` | Full control panel, manage listings, users, audit logs, approve claims |
-| **Student (Alex)** | `alex@campusfinds.edu` | `Password123!` | Report lost/found items, file ownership claims, receive notifications |
-| **Student (Samantha)** | `samantha@campusfinds.edu` | `Password123!` | Student dashboard, item reporting |
-| **Student (David)** | `david@campusfinds.edu` | `Password123!` | Student dashboard, item reporting |
+| **Administrator** | `admin@rbunagpur.in` | `Password123!` | Full control panel, manage listings, users, audit logs, approve claims |
+| **Student (Alex)** | `alex@rbunagpur.in` | `Password123!` | Report lost/found items, file ownership claims, receive notifications |
+| **Student (Samantha)** | `samantha@rbunagpur.in` | `Password123!` | Student dashboard, item reporting |
+| **Student (David)** | `david@rbunagpur.in` | `Password123!` | Student dashboard, item reporting |
+
+> **Note for New Student Signups:** Any student can register a brand-new account anytime at `/auth/register`. Their email must end with `@rbunagpur.in`.
+
+---
+
+## 🔒 Fraud Prevention & Ownership Verification System
+To prevent unauthorized users from claiming items that do not belong to them:
+1. **Official Domain Lock:** Student registration strictly enforces `@rbunagpur.in` college emails.
+2. **Blind Challenge Question:** When reporting a found item, finders configure an *Ownership Verification Challenge Question* (e.g. *"What sticker is on the back?"*). Claimants must answer this blind question.
+3. **Rejection Lockout:** If an ownership claim is reviewed and rejected by the finder or admin, that student is permanently locked from submitting further claims for that specific item.
+4. **Anti-Spam Quota:** Students are limited to a maximum of 5 concurrent unresolved claims across campus.
+5. **Audit Trail & Disciplinary Notice:** Every claim records the student's identity, timestamp, and IP address, and warns claimants that fraudulent claims violate the University Student Conduct policy.
 
 ---
 

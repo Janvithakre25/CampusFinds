@@ -46,6 +46,12 @@
                         <span class="text-muted small d-block">Date of Occurrence</span>
                         <strong class="text-dark"><i class="bi bi-calendar-event text-primary me-1"></i> {{ item.item_date }}</strong>
                     </div>
+                    {% if item.verification_question %}
+                        <div class="col-12 border-top pt-2 mt-2">
+                            <span class="text-primary small d-block fw-bold"><i class="bi bi-question-diamond-fill me-1"></i> Ownership Verification Challenge Question:</span>
+                            <span class="text-dark">{{ item.verification_question }}</span>
+                        </div>
+                    {% endif %}
                 </div>
 
                 <!-- Private Verification Details Box (RESTRICTED TO OWNER & ADMIN ONLY) -->

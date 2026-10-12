@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS items (
     location VARCHAR(150) NOT NULL,
     item_date DATE NOT NULL,
     image_url VARCHAR(500) DEFAULT NULL,
+    verification_question VARCHAR(255) DEFAULT NULL,
     private_verification_details TEXT DEFAULT NULL,
     status ENUM('open', 'claimed', 'returned', 'closed') DEFAULT 'open',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

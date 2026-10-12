@@ -31,17 +31,29 @@ def test_browse_items(client):
     assert b"AirPods" in search_resp.data
 
 def test_user_registration_and_login(client):
-    """Test user registration, duplicate email check, and login authentication."""
+    """Test user registration, domain restriction (@rbunagpur.in), and login authentication."""
     import uuid
-    rand_email = f"test_{uuid.uuid4().hex[:6]}@campusfinds.edu"
+    rand_id = uuid.uuid4().hex[:6]
+    valid_email = f"student_{rand_id}@rbunagpur.in"
+    invalid_email = f"intruder_{rand_id}@gmail.com"
 
-    # Register
+    # Test rejection of unauthorized domain
+    bad_resp = client.post('/auth/register', data={
+        'full_name': 'External User',
+        'email': invalid_email,
+        'phone': '9876543210',
+        'password': 'Password123!',
+        'confirm_password': 'Password123!'
+    }, follow_redirects=True)
+    assert b"Registration restricted: Only official college email addresses" in bad_resp.data
+
+    # Valid registration with @rbunagpur.in
     reg_resp = client.post('/auth/register', data={
-        'full_name': 'Test Student',
-        'email': rand_email,
-        'phone': '1234567890',
-        'student_id': 'TST-999',
-        'department': 'CS',
+        'full_name': 'RBU Student',
+        'email': valid_email,
+        'phone': '9876543210',
+        'student_id': f'RBU-{rand_id}',
+        'department': 'Computer Science',
         'password': 'Password123!',
         'confirm_password': 'Password123!'
     }, follow_redirects=True)
@@ -50,8 +62,8 @@ def test_user_registration_and_login(client):
 
     # Attempt duplicate registration
     dup_resp = client.post('/auth/register', data={
-        'full_name': 'Test Student',
-        'email': rand_email,
+        'full_name': 'RBU Student',
+        'email': valid_email,
         'password': 'Password123!',
         'confirm_password': 'Password123!'
     }, follow_redirects=True)
@@ -59,7 +71,7 @@ def test_user_registration_and_login(client):
 
     # Login
     login_resp = client.post('/auth/login', data={
-        'email': rand_email,
+        'email': valid_email,
         'password': 'Password123!'
     }, follow_redirects=True)
     assert login_resp.status_code == 200
@@ -67,9 +79,9 @@ def test_user_registration_and_login(client):
 
 def test_report_item_flow(client):
     """Test logged-in student reporting lost and found items."""
-    # Login as student alex@campusfinds.edu
+    # Login as student alex@rbunagpur.in
     client.post('/auth/login', data={
-        'email': 'alex@campusfinds.edu',
+        'email': 'alex@rbunagpur.in',
         'password': 'Password123!'
     }, follow_redirects=True)
 
@@ -91,7 +103,7 @@ def test_claim_and_handover_flow(client):
     """Test claim submission, approval, and handover record creation."""
     # Login as student alex
     client.post('/auth/login', data={
-        'email': 'alex@campusfinds.edu',
+        'email': 'alex@rbunagpur.in',
         'password': 'Password123!'
     }, follow_redirects=True)
 
@@ -106,7 +118,7 @@ def test_claim_and_handover_flow(client):
     # Log out alex, log in as David (finder) to review claim
     client.get('/auth/logout')
     client.post('/auth/login', data={
-        'email': 'david@campusfinds.edu',
+        'email': 'david@rbunagpur.in',
         'password': 'Password123!'
     }, follow_redirects=True)
 
@@ -141,7 +153,7 @@ def test_admin_authorization_protection(client):
     """Test that unauthorized students cannot access administrator panel."""
     # Login as student
     client.post('/auth/login', data={
-        'email': 'samantha@campusfinds.edu',
+        'email': 'samantha@rbunagpur.in',
         'password': 'Password123!'
     }, follow_redirects=True)
 
@@ -151,7 +163,7 @@ def test_admin_authorization_protection(client):
     # Logout and login as admin
     client.get('/auth/logout')
     client.post('/auth/login', data={
-        'email': 'admin@campusfinds.edu',
+        'email': 'admin@rbunagpur.in',
         'password': 'Password123!'
     }, follow_redirects=True)
 

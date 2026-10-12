@@ -127,6 +127,7 @@ def report_found():
         description = request.form.get('description', '').strip()
         location = request.form.get('location', '').strip()
         item_date = request.form.get('item_date', '').strip()
+        verification_question = request.form.get('verification_question', '').strip()
         private_details = request.form.get('private_verification_details', '').strip()
 
         if not title or not category or not description or not location or not item_date:
@@ -146,10 +147,10 @@ def report_found():
         try:
             res = execute_db(
                 """
-                INSERT INTO items (user_id, item_type, title, category, description, location, item_date, image_url, private_verification_details, status)
-                VALUES (%s, 'found', %s, %s, %s, %s, %s, %s, %s, 'open')
+                INSERT INTO items (user_id, item_type, title, category, description, location, item_date, image_url, verification_question, private_verification_details, status)
+                VALUES (%s, 'found', %s, %s, %s, %s, %s, %s, %s, %s, 'open')
                 """,
-                (session['user_id'], title, category, description, location, item_date, image_filename, private_details)
+                (session['user_id'], title, category, description, location, item_date, image_filename, verification_question, private_details)
             )
             item_id = res['lastrowid']
             log_activity(session['user_id'], 'REPORT_FOUND', f"Reported found item #{item_id}: {title}", request.remote_addr)

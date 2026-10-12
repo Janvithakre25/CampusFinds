@@ -13,10 +13,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- Users (All sample accounts have password: Password123!)
 INSERT INTO users (id, full_name, email, phone, password_hash, role, student_id, department) VALUES
-(1, 'Campus Admin', 'admin@campusfinds.edu', '+1-555-0100', 'scrypt:32768:8:1$LniEODWnvGgInTCL$0b8e51837ae032408d575e6710bad5f8c018457021f24f0f65c708043d44248fb03b964df1c9232460ce7bbeb7eba845edf53a35ac9f7ef9eb9f0c4dac62f32f', 'admin', 'ADM-001', 'Campus Security & Facilities'),
-(2, 'Alex Rivera', 'alex@campusfinds.edu', '+1-555-0101', 'scrypt:32768:8:1$LniEODWnvGgInTCL$0b8e51837ae032408d575e6710bad5f8c018457021f24f0f65c708043d44248fb03b964df1c9232460ce7bbeb7eba845edf53a35ac9f7ef9eb9f0c4dac62f32f', 'student', 'STU-1029', 'Computer Science'),
-(3, 'Samantha Reed', 'samantha@campusfinds.edu', '+1-555-0102', 'scrypt:32768:8:1$LniEODWnvGgInTCL$0b8e51837ae032408d575e6710bad5f8c018457021f24f0f65c708043d44248fb03b964df1c9232460ce7bbeb7eba845edf53a35ac9f7ef9eb9f0c4dac62f32f', 'student', 'STU-2041', 'Mechanical Engineering'),
-(4, 'David Chen', 'david@campusfinds.edu', '+1-555-0103', 'scrypt:32768:8:1$LniEODWnvGgInTCL$0b8e51837ae032408d575e6710bad5f8c018457021f24f0f65c708043d44248fb03b964df1c9232460ce7bbeb7eba845edf53a35ac9f7ef9eb9f0c4dac62f32f', 'student', 'STU-3312', 'Business Administration');
+(1, 'Campus Admin', 'admin@rbunagpur.in', '+91-712-2550100', 'scrypt:32768:8:1$LniEODWnvGgInTCL$0b8e51837ae032408d575e6710bad5f8c018457021f24f0f65c708043d44248fb03b964df1c9232460ce7bbeb7eba845edf53a35ac9f7ef9eb9f0c4dac62f32f', 'admin', 'ADM-001', 'Campus Security & Facilities'),
+(2, 'Alex Rivera', 'alex@rbunagpur.in', '+91-712-2550101', 'scrypt:32768:8:1$LniEODWnvGgInTCL$0b8e51837ae032408d575e6710bad5f8c018457021f24f0f65c708043d44248fb03b964df1c9232460ce7bbeb7eba845edf53a35ac9f7ef9eb9f0c4dac62f32f', 'student', 'RBU-CS-1029', 'Computer Science & Engg'),
+(3, 'Samantha Reed', 'samantha@rbunagpur.in', '+91-712-2550102', 'scrypt:32768:8:1$LniEODWnvGgInTCL$0b8e51837ae032408d575e6710bad5f8c018457021f24f0f65c708043d44248fb03b964df1c9232460ce7bbeb7eba845edf53a35ac9f7ef9eb9f0c4dac62f32f', 'student', 'RBU-ME-2041', 'Mechanical Engineering'),
+(4, 'David Chen', 'david@rbunagpur.in', '+91-712-2550103', 'scrypt:32768:8:1$LniEODWnvGgInTCL$0b8e51837ae032408d575e6710bad5f8c018457021f24f0f65c708043d44248fb03b964df1c9232460ce7bbeb7eba845edf53a35ac9f7ef9eb9f0c4dac62f32f', 'student', 'RBU-MBA-3312', 'Management Studies');
 
 -- Items (Lost & Found)
 INSERT INTO items (id, user_id, item_type, title, category, description, location, item_date, image_url, private_verification_details, status) VALUES

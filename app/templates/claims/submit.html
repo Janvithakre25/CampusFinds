@@ -25,20 +25,42 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ url_for('claims.submit_claim', item_id=item.id) }}" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Why is this item yours? *</label>
-                        <textarea name="claim_description" rows="3" class="form-control" placeholder="Explain when and where you lost it, brand, and appearance details..." required></textarea>
+                <!-- Academic Integrity & Anti-Fraud Notice -->
+                <div class="alert alert-warning border-warning-subtle small d-flex gap-2 align-items-start mb-4">
+                    <i class="bi bi-shield-exclamation text-warning-emphasis fs-5 flex-shrink-0"></i>
+                    <div>
+                        <strong>RBU University Conduct Policy Notice:</strong>
+                        All claims are officially recorded under your verified Student ID (<strong>{{ session.get('user_email') }}</strong>) and logged with your IP address. Filing false ownership claims to unlawfully obtain items is a disciplinary offense subject to campus administrative review.
                     </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('claims.submit_claim', item_id=item.id) }}" enctype="multipart/form-data">
+                    {% if item.verification_question %}
+                        <div class="card border-primary bg-primary-subtle p-3 mb-3">
+                            <label class="form-label fw-bold text-primary mb-1">
+                                <i class="bi bi-question-diamond-fill me-1"></i> Ownership Verification Challenge:
+                            </label>
+                            <p class="mb-2 fw-semibold text-dark">{{ item.verification_question }}</p>
+                            <input type="text" name="proof_details" class="form-control" placeholder="Provide your answer to the challenge question above..." required>
+                            <div class="form-text text-muted">
+                                Your answer must match the private details provided by the finder or campus administrator.
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-danger">
+                                <i class="bi bi-key-fill me-1"></i> Proof of Ownership / Secret Details *
+                            </label>
+                            <textarea name="proof_details" rows="3" class="form-control" placeholder="Provide identifying marks that only the true owner would know: e.g. serial number, specific stickers, hidden scratch, wallpaper, name written inside, contents of pocket..." required></textarea>
+                            <div class="form-text">
+                                This will be verified against the confidential notes submitted by the finder.
+                            </div>
+                        </div>
+                    {% endif %}
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold text-danger">
-                            <i class="bi bi-key-fill me-1"></i> Proof of Ownership / Secret Details *
-                        </label>
-                        <textarea name="proof_details" rows="3" class="form-control" placeholder="Provide identifying marks that only the true owner would know: e.g. serial number, specific stickers, hidden scratch, wallpaper, name written inside, contents of pocket..." required></textarea>
-                        <div class="form-text">
-                            This will be verified against the confidential notes submitted by the finder or inspected by the campus administrator.
-                        </div>
+                        <label class="form-label fw-semibold">Description of Ownership Circumstances *</label>
+                        <textarea name="claim_description" rows="3" class="form-control" placeholder="Explain when and where you lost it, item brand, approximate purchase time, and any identifying history..." required></textarea>
                     </div>
 
                     <div class="mb-4">

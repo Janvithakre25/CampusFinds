@@ -30,6 +30,11 @@ def register():
             flash("Please enter a valid email address.", "danger")
             return render_template('auth/register.html', full_name=full_name, email=email, phone=phone, student_id=student_id, department=department)
 
+        # Enforce official college domain: @rbunagpur.in
+        if not email.endswith('@rbunagpur.in'):
+            flash("Registration restricted: Only official college email addresses ending with '@rbunagpur.in' are permitted.", "danger")
+            return render_template('auth/register.html', full_name=full_name, email=email, phone=phone, student_id=student_id, department=department)
+
         if len(password) < 6:
             flash("Password must be at least 6 characters long.", "danger")
             return render_template('auth/register.html', full_name=full_name, email=email, phone=phone, student_id=student_id, department=department)
@@ -41,7 +46,7 @@ def register():
         # Check existing email
         existing = query_db("SELECT id FROM users WHERE email = %s", (email,), one=True)
         if existing:
-            flash("An account with this email already exists. Please log in.", "warning")
+            flash("An account with this college email already exists. Please log in.", "warning")
             return redirect(url_for('auth.login'))
 
         # Secure password hashing using PBKDF2/scrypt
